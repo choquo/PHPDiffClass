@@ -11,8 +11,10 @@ http://creativecommons.org/publicdomain/zero/1.0/legalcode
 
 Extended by Carlos Maldonado @choquo.
 This version now can:
-Merge / Update the old file with the new changes - Diff::toMerge /Save the string as new file, make sure you trim the string before sabe just for clean the extra lines at beggining and end.
-Knows if two files have changes or is the same content: Diff::haveChanges
+a) function toMerge() - Returns and updated string - Create a updated string with deleted lines removed and added ones in the string.
+b) function haveChanges() - Check if it's different: Knows if two files have changes or is the same content: Diff::haveChanges
+c) function compareToCleanOutput()
+d) function compareFilesToCleanOutput()
 */
 
 // A class containing functions for computing diffs and formatting the output.
@@ -89,6 +91,83 @@ class Diff{
 
   }
 
+
+
+
+
+/* This is a copy of the above function
+ * To generate a clean new updated file with deleted lines and added lines.
+ * The trick is in generate the array with PHP_EOL instead of preg_split \R
+ * To display a comparison of two files showing deleted and inserted lines use compare() only, no this function
+ * This functions is only for generate a new file updated with with the changes.
+ * Tuned by @choquo
+ */
+
+  public static function compareToCleanOutput(
+      $string1, $string2, $compareCharacters = false){
+
+    // initialise the sequences and comparison start and end positions
+    $start = 0;
+    if ($compareCharacters){
+      $sequence1 = $string1;
+      $sequence2 = $string2;
+      $end1 = strlen($string1) - 1;
+      $end2 = strlen($string2) - 1;
+    }else{
+      //$sequence1 = preg_split('/\R/', $string1);
+      //$sequence2 = preg_split('/\R/', $string2);
+      $sequence1 = explode(PHP_EOL, $string1 );
+      $sequence2 = explode(PHP_EOL, $string2 );
+      $end1 = count($sequence1) - 1;
+      $end2 = count($sequence2) - 1;
+    }
+
+    // skip any common prefix
+    while ($start <= $end1 && $start <= $end2
+        && $sequence1[$start] == $sequence2[$start]){
+      $start ++;
+    }
+
+    // skip any common suffix
+    while ($end1 >= $start && $end2 >= $start
+        && $sequence1[$end1] == $sequence2[$end2]){
+      $end1 --;
+      $end2 --;
+    }
+
+    // compute the table of longest common subsequence lengths
+    $table = self::computeTable($sequence1, $sequence2, $start, $end1, $end2);
+
+    // generate the partial diff
+    $partialDiff =
+        self::generatePartialDiff($table, $sequence1, $sequence2, $start);
+
+    // generate the full diff
+    $diff = array();
+    for ($index = 0; $index < $start; $index ++){
+      $diff[] = array($sequence1[$index], self::UNMODIFIED);
+    }
+    while (count($partialDiff) > 0) $diff[] = array_pop($partialDiff);
+    for ($index = $end1 + 1;
+        $index < ($compareCharacters ? strlen($sequence1) : count($sequence1));
+        $index ++){
+      $diff[] = array($sequence1[$index], self::UNMODIFIED);
+    }
+
+    // return the diff
+    return $diff;
+
+  }
+
+
+
+
+
+
+
+
+
+
   /* Returns the diff for two files. The parameters are:
    *
    * $file1             - the path to the first file
@@ -101,6 +180,22 @@ class Diff{
 
     // return the diff of the files
     return self::compare(
+        file_get_contents($file1),
+        file_get_contents($file2),
+        $compareCharacters);
+
+  }
+
+  /* This is a copy of above functions just to generate
+   * a clean output file with the new lines added and the old lines removed
+   * in few words, the updated file
+   * Tuned by: @choquo
+   */
+  public static function compareFilesToCleanOutput(
+      $file1, $file2, $compareCharacters = false){
+
+    // return the diff of the files
+    return self::compareToCleanOutput(
         file_get_contents($file1),
         file_get_contents($file2),
         $compareCharacters);
@@ -252,8 +347,8 @@ class Diff{
 
       // extend the string with the line
       switch ($line[1]){
-        case self::UNMODIFIED : $string .= '  ' . $line[0];break;
-        //case self::DELETED    : $string .= '- ' . $line[0];break; //Dont add deleted just inserted
+        case self::UNMODIFIED : $string .= '' . $line[0];break; //If it's unmodified just concat the original string, noting more.
+        //case self::DELETED  : $string .= '- ' . $line[0];break; //This line is not required anymore to merge, With this commented, Merge dont add deleted lines, just inserted lines.
         case self::INSERTED   : $string .=  $line[0];break;
       }
 
