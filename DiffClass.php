@@ -8,6 +8,11 @@ Created by Stephen Morley - http://stephenmorley.org/ - and released under the
 terms of the CC0 1.0 Universal legal code:
 
 http://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+Extended by Carlos Maldonado @choquo.
+This version now can:
+Merge / Update the old file with the new changes - Diff::toMerge /Save the string as new file, make sure you trim the string before sabe just for clean the extra lines at beggining and end.
+Knows if two files have changes or is the same content: Diff::haveChanges
 */
 
 // A class containing functions for computing diffs and formatting the output.
@@ -237,7 +242,6 @@ class Diff{
   /* Returns the new content merged
    * Tuned by: @choquo
    */
-
   public static function toMerge($diff, $separator = "\n"){
 
     // initialise the string
@@ -260,6 +264,32 @@ class Diff{
 
     // return the string
     return $string;
+
+  }
+
+
+
+    /* Check if file have changes
+   * Tuned by: @choquo
+   */
+  public static function haveChanges($diff, $separator = "\n"){
+
+    // initialise the string
+    $string = '';
+
+    // loop over the lines in the diff
+    foreach ($diff as $line){
+
+      // extend the string with the line
+      switch ($line[1]){
+        case self::UNMODIFIED : $changes_status = false; ;break;
+        case self::DELETED    : $changes_status = true   ;break; //Dont add deleted just inserted
+        case self::INSERTED   : $changes_status = true   ;break;
+      }
+
+    }
+
+    return $changes_status; //Return true if have deletions or insertions, return false if still unmodified
 
   }
 

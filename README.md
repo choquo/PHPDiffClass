@@ -1,12 +1,14 @@
 #PHP Diff Class
-Autor:
-Stephen Morley 
 
-Fuente:
-http://code.stephenmorley.org/php/diff-implementation/
+Sorry por el desastre en los comentarios pero es un borrador, poco a poco iré mejorando la documentación.
 
-Extended by:
-Carlos Maldonado @choquo
+**Autor:** Stephen Morley 
+
+**Fuente Original:** http://code.stephenmorley.org/php/diff-implementation/
+
+**Extended by:** Carlos Maldonado @choquo
+
+**Licencia:** Creative Commons, si lo usas tienes que dar crédito al autor, y a los colaboradores que ayudan a mejorar la clase.
 
 
 ###Diferencia de archivos por lineas o caracteres.
@@ -14,8 +16,21 @@ Carlos Maldonado @choquo
 Compara dos archivos y encuentra partes modificadas, usa toMerge para mostrar el archivo actualizado quitando solo las lineas que se eliminaron y respetando las que no se modificaron junto con las nuevas lineas.
 
 
+#Lo que se añadió
+	
+###Diff::toMerge
+Genera un archivo actualizado
 	
 	$new_file = trim( Diff::toMerge(Diff::compareFiles('old.php', 'new.php')) );
+	//Guardar $new_file, es el archivo que contine el merge entre old y new, osea el actualizado.
+
+###Diff::haveChanges
+Compara dos archivos para saber si hay cambios
+
+	if( Diff::haveChanges(Diff::compareFiles('old.php', 'new.php')) ){ echo 'Es diferente'; }
+	
+
+#Anotaciones generales
 
 
 	<?php 
@@ -60,6 +75,16 @@ Compara dos archivos y encuentra partes modificadas, usa toMerge para mostrar el
 	
 	}
 
+
+	//Check if files have changes
+	//====================================
+	echo '<hr>';
+	if( Diff::hasChanged(Diff::compareFiles('old.php', 'new.php')) ){
+		echo 'Es diferente<br>';
+	}else{
+		echo 'Es igual<br>';
+	}
+	echo '<hr>';
 
 
 
