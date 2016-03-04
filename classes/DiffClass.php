@@ -367,24 +367,19 @@ class Diff{
     /* Check if file have changes
    * Tuned by: @choquo
    */
-  public static function haveChanges($diff, $separator = "\n"){
+  public static function haveChanges($a, $b){
 
-    // initialise the string
-    $string = '';
+    $file_a = file_get_contents($a);
+    $file_b = file_get_contents($b);
 
-    // loop over the lines in the diff
-    foreach ($diff as $line){
-
-      // extend the string with the line
-      switch ($line[1]){
-        case self::UNMODIFIED : $changes_status = false; ;break;
-        case self::DELETED    : $changes_status = true   ;break; //Dont add deleted just inserted
-        case self::INSERTED   : $changes_status = true   ;break;
-      }
-
+    if( $file_a === $file_b )
+    {
+      return false;
     }
-
-    return $changes_status; //Return true if have deletions or insertions, return false if still unmodified
+    else
+    {
+      return true;
+    }
 
   }
 
@@ -434,7 +429,7 @@ class Diff{
    * $separator   - the separator between lines; this optional parameter
    *                defaults to '<br>'
    */
-  public static function toTable($diff, $indentation = '', $separator = '<br>'){
+  public static function toTable($diff, $indentation = '', $separator = ''){ //$separator = '<br>'
 
     // initialise the HTML
     $html = $indentation . "<table class=\"diff\">\n";
