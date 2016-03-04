@@ -29,6 +29,9 @@ Compara dos archivos para saber si hay cambios
 
 	if( Diff::haveChanges(Diff::compareFiles('old.php', 'new.php')) ){ echo 'Es diferente'; }
 	
+### function compareToCleanOutput()
+### function compareFilesToCleanOutput()
+
 
 #Anotaciones generales
 
