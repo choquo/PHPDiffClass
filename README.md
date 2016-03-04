@@ -84,3 +84,7 @@ Compara dos archivos y encuentra partes modificadas, usa toMerge para mostrar el
 	$fp = fopen($updated_file, 'w');
 	$new_file = trim( Diff::toMerge(Diff::compareFiles('old.php', 'new.php')) );
 	fwrite($fp, $new_file );
+
+
+
+![](screen.png)
